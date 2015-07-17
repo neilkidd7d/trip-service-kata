@@ -6,10 +6,22 @@ namespace TripServiceKata.Trip
 {
     public class TripService
     {
-        public List<Trip> GetTripsByUser(User.User user)
+		private readonly ILoggedUserFinder _loggedUserFinder;
+
+	    public TripService() :
+			this(new LoggedUserFinder())
+	    {
+	    }
+
+		public TripService(ILoggedUserFinder loggedUserFinder)
+	    {
+		    _loggedUserFinder = loggedUserFinder;
+	    }
+
+	    public List<Trip> GetTripsByUser(User.User user)
         {
             List<Trip> tripList = new List<Trip>();
-            User.User loggedUser = UserSession.GetInstance().GetLoggedUser();
+			User.User loggedUser = _loggedUserFinder.GetUser();
             bool isFriend = false;
             if (loggedUser != null)
             {
@@ -33,4 +45,17 @@ namespace TripServiceKata.Trip
             }
         }
     }
+
+	public interface ILoggedUserFinder
+	{
+		User.User GetUser();
+	}
+
+	public class LoggedUserFinder : ILoggedUserFinder
+	{
+		public User.User GetUser()
+		{
+			return UserSession.GetInstance().GetLoggedUser();
+		}
+	}
 }
